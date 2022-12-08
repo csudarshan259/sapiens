@@ -2,7 +2,8 @@
 
 
 const yargs = require("yargs");
-const {addPerson,editPerson,deletePerson,searchPerson,viewSinglePerson} = require('./src/person');
+const {addPerson,editPerson,deletePerson,searchPerson,listPeople} = require('./src/person');
+const {addressGeneric} = require('./src/address');
 
 // console.log("Hello To Sapiens");
 
@@ -111,7 +112,7 @@ const args = yargs.usage("person [command] [command-options] [arguments]")
                     if(yargs.d != undefined || yargs.f != undefined || yargs.l !=undefined || yargs.n != undefined){
                         return true;
                     }
-                    else {throw (new Error("Please select atleast one property (f,l,d,n)"));}
+                    else {throw (new Error("Please select atleast one option (f,l,d,n)"));}
 
                 });
         },
@@ -136,14 +137,17 @@ const args = yargs.usage("person [command] [command-options] [arguments]")
                  type: 'string'
                 })
         }, (opts) => (searchPerson(opts)))
-    .command(`address`,
+    .command(`address [operation]`,
         `Address related operations. For more details see examples or use "person address --help" in command prompt`, (yargs)=>{
             yargs.positional('add',{
                 describe:'Adds new address of a person',
+                type:"string",
             }).positional('edit',{
                 describe:'Edits an address',
+                type:"string"
             }).positional('delete',{
-                describe:'Deletes an address'
+                describe:'Deletes an address',
+                type:"string"
             }).option('i',{
                 alias:'id',
                 description: "Address' unique id",
@@ -186,7 +190,17 @@ const args = yargs.usage("person [command] [command-options] [arguments]")
                     demandOption:false,
                     type: "string"
                 }
-            )
+            ).check((yargs)=>{
+                console.log(yargs);
+                if(yargs.operation=="add" && yargs.i != undefined && yargs.l1 != undefined){
+                    return true;
+                }
+                else if(yargs.operation =="add" && yargs.pid == undefined && yargs.l1 == undefined) {
+                    throw (new Error(`line1 and personId option is required while adding new address`));
+                }
+
+                return true;
+            });
         }, (opts) => (addressGeneric(opts))
     )
 
