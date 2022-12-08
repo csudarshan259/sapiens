@@ -1,20 +1,15 @@
-
 const fs = require('fs');
-const { isEmpty, duplicatePerson } = require('./validation');
-const {persistence,person,person_address,pid} = require('../constants');
+const { isEmpty, duplicatePerson,dobValidation, isEuropeanCountry } = require('./validation');
+const {persistence,person,person_address,pid, address} = require('../constants');
+
 function listPeople(options) {
     if (options.id != undefined) {
         viewSinglePerson(options);
         return;
     }
-
     const jsonString = fs.readFileSync(persistence + person);
     const personObj = JSON.parse(jsonString);
-
-    console.table(personObj);
-
-
-    // console.log(options);
+console.table(personObj);
 }
 function updatePidFile(incrementValue) {
     const obj = { counter: incrementValue };
@@ -22,22 +17,16 @@ function updatePidFile(incrementValue) {
     return;
 }
 function addPerson(options) {
-    // console.log(options)
     try {
-        // Note that jsonString will be a <Buffer> since we did not specify an
-        // encoding type for the file. But it'll still work because JSON.parse() will
-        // use <Buffer>.toString().
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
-
-
-
-
         const incrementer = fs.readFileSync(persistence + pid);
         const oldId = JSON.parse(incrementer);
         const newId = oldId.counter + 1;
         updatePidFile(newId);
-
+        if(!dobValidation(options.dob)){
+            return;
+        }
         const newObj = {
             id: newId,
             firstname: options.f,
@@ -50,7 +39,7 @@ function addPerson(options) {
         }
         personObj.push(newObj);
         fs.writeFileSync(persistence + person, JSON.stringify(personObj));
-        console.log("Person added successfully");
+        console.log(`Person added successfully. New person id is ${newId}`);
     } catch (err) {
         console.log(err);
         return;
@@ -108,17 +97,21 @@ function deletePerson(options) {
         fs.writeFileSync(persistence + person, JSON.stringify(personObj)); //delete from person.json
 
         const personAddressJsonString = fs.readFileSync(persistence+person_address);
-        const personAddressObj = JSON.parse(personAddressJsonString);
+        let personAddressObj = JSON.parse(personAddressJsonString);
 
         const personAddress= personAddressObj.find(p => p.personId == options.id);
+
+        const personAddressIndex = personAddressObj.findIndex((v) => v.personId === options.id);
+        console.log(personAddressIndex);
+
         if (personAddressIndex == -1) {
         }else{
             // personAddressObj.splice(personAddressIndex,1);
-            personAddress.filter(function(pa) {
+
                 personAddressObj = personAddressObj.filter(function(pao) {
-                    return pao.personId != pa.personId;
+                    return pao.personId != personAddress.personId;
                 });
-            });
+
             fs.writeFileSync(persistence+person_address,JSON.stringify(personAddressObj)); //delete from person_address.json
 
         }
@@ -153,13 +146,48 @@ function viewSinglePerson(options) {
     if (isEmpty(personObj, "person")) {
         return;
     }
-    const singlePerson = personObj.find((v) => v.id == options.id);
+    const singlePerson = personObj.filter((v) => v.id == options.id);
     // console.log(singlePerson);
-    if (singlePerson != undefined) {
-        console.table(singlePerson);
-        return;
-    }
 
+    const addressString = fs.readFileSync(persistence+address);
+    const addressObj = JSON.parse(addressString);
+    const personAddressString = fs.readFileSync(persistence+person_address);
+    const personAddressObj = JSON.parse(personAddressString);
+    var pao=[];
+
+    var addr=[];
+    var custobj=[];
+
+
+        const paotemp = personAddressObj.filter((pa)=>pa.personId==options.id);
+        pao.push(paotemp);
+        pao.forEach((paoi)=>{
+            // console.log(paoi)
+            paoi.forEach(element => {
+                const addrtemp = addressObj.filter((a)=>a.id==element.addressId);
+                // console.log(addrtemp)
+                addr.push(addrtemp);
+
+            });
+        });
+        // console.log(addr)
+        // addr.forEach(addrtemp1 => {
+        //     // console.log(addrtemp1);
+        //     const customobj = {
+        //         person:element,
+        //         address:addrtemp1[0]
+        //     }
+        //     custobj.push(customobj);
+        //     });
+        // });
+
+if (singlePerson != undefined) {
+    console.table(singlePerson);
+    addr.forEach(addrtemp=>{
+        console.table(addrtemp);
+    })
+    return;
+}
     console.log("No data found for the given id.")
 }
 

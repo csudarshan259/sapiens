@@ -48,55 +48,35 @@ function duplicateAddress(personId,addressObj,newAddressObj,type,oldId){
 
 
 
-    console.log("addressobj",addressObj);
     const newAddressLine1 = newAddressObj.line1?newAddressObj.line1:"";
-    // const exisitingAddressLine1=addressObj.line1?addressObj.line1:"";
     const newAddressLine2 = newAddressObj.line2?newAddressObj.line2:"";
-    // const exisitingAddressLine2=addressObj.line2?addressObj.line2:"";
     const newAddressCountry = newAddressObj.country?newAddressObj.country:"";
-    // const exisitingAddressCountry=addressObj.country?addressObj.country:"";
     const newAddressPostCode = newAddressObj.postcode?newAddressObj.postcode:"";
-    // const exisitingAddressPostCode=addressObj.postalcode?addressObj.postalcode:"";
-    console.log(newAddressLine1,newAddressLine2,newAddressCountry,newAddressPostCode)
-    console.log("newaddrobj",newAddressObj);
     const existingAddress = addressObj.find(x => x.line1.toString().toLowerCase() == newAddressLine1.toString().toLowerCase() &&
      x.line2.toString().toLowerCase() == newAddressLine2.toLowerCase() &&
     x.country.toString().toLowerCase() == newAddressCountry.toString().toLowerCase() &&
     x.postcode.toString().toLowerCase() == newAddressPostCode.toString().toLowerCase());
 
-    console.log("console.log existing address",existingAddress);
+    // console.log("console.log existing address",existingAddress);
     if (existingAddress == undefined) {
         return false;
     }
     if(type=="add"){
-
-
-
-
-
         const personAddressJsonString= fs.readFileSync(persistence+person_address);
         const personAddressObj = JSON.parse(personAddressJsonString);
-        console.log('ex',existingAddress.id);
-        console.log('pao',personAddressObj);
-        console.log('pid',personId);
-        console.log(existingAddress.id);
-        const existingPersonAddressObj = personAddressObj.find(obj=>obj.addressId ==oldId && obj.personId==personId);
-            console.log('foucd',existingPersonAddressObj);
 
-
-
+        const existingPersonAddressObj = personAddressObj.find(obj=>obj.addressId ==existingAddress.id && obj.personId==personId);
 
         if(existingAddress != undefined && (existingPersonAddressObj != undefined)){
             console.log(`Could not ${type}. Address exists already.`);
-
             return true;
          }
         if(existingAddress != undefined){
-            const paString = fs.readFileSync(persistence + person_address);
+        const paString = fs.readFileSync(persistence + person_address);
         const paObj = JSON.parse(paString);
         const person_addressObj = {
             personId: personId,
-            addressId: oldId
+            addressId: existingAddress.id
         };
 
 
@@ -122,15 +102,11 @@ function dobValidation(dob){
         return false;
 
 }
-function containsAddressPerson(personId,addressId)//get address from line1
-{
-    let personAddressJsonString= fs.readFileSync(persistence+person_address);
-    const personAddressObj = JSON.parse(personAddressJsonString);
-    const existingPersonAddressObj = personAddressObj.find(pa=>pa.personId);
-    if(existingPersonAddressObj != undefined){
-        return true
-    }
-    return false;
+function isEuropeanCountry(country){
+   fetch('https://restcountries.com/v3.1/region/europe').then(res=>{
+    console.log(res);
+   });
+
 }
 module.exports = {
     isEmpty,
@@ -138,5 +114,5 @@ module.exports = {
     dobValidation,
     duplicateAddress,
     checkPid,
-    containsAddressPerson
+    isEuropeanCountry
 }

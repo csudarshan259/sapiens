@@ -191,13 +191,30 @@ const args = yargs.usage("person [command] [command-options] [arguments]")
                     type: "string"
                 }
             ).check((yargs)=>{
-                console.log(yargs);
+                // console.log(yargs);
                 if(yargs.operation=="add" && yargs.i != undefined && yargs.l1 != undefined){
                     return true;
                 }
                 else if(yargs.operation =="add" && yargs.pid == undefined && yargs.l1 == undefined) {
                     throw (new Error(`line1 and personId option is required while adding new address`));
                 }
+                if(yargs.operation =="edit"){
+                if(yargs.i != undefined && (yargs.l1 != undefined||yargs.l2 !=undefined || yargs.ctr !=undefined || yargs.pc != undefined)){
+                    return true;
+                }
+                else {
+                    throw (new Error(`One more option is required along with id while editing an address`));
+                }
+            }
+            if(yargs.operation == "delete"){
+
+                if(yargs.i != undefined){
+
+                }else{
+                    throw (new Error(`id option is required while deleting address`));
+                }
+            }
+
 
                 return true;
             });
@@ -206,7 +223,7 @@ const args = yargs.usage("person [command] [command-options] [arguments]")
 
     .example(`$0 view`, `Lists all people.\n`)
     .example(`$0 add --firstname "Bob" --lastname "Smith" --dob 10/03/1960`, `Creates a new person record with mandatory parameters with first name as "Bob", last name as "Smith" and date of birth as "10/03/1960".\n`)
-    .example(`$0 add --firstname "Susan" --lastname "Delgato" --dob 01/05/19710 -nickname "Susie"`, `Creates a new person record with mandatory parameters with first name as "Susan", last name as "Delgato", date of birth as "01/05/1971" and an optional parameter nickname as "Susie".\n`)
+    .example(`$0 add --firstname "Susan" --lastname "Delgato" --dob 01/05/1970 --nickname "Susie"`, `Creates a new person record with mandatory parameters with first name as "Susan", last name as "Delgato", date of birth as "01/05/1971" and an optional parameter nickname as "Susie".\n`)
     .example(`$0 edit --id 3 --lastname "Patel"`, `Edits the last name of a person with id 3 to "Patel"".\n`)
     .example(`$0 delete --id 3`, `Deletes a person having person identifier as 3.\n`)
     .example(`$0 search "abc"`, `Searches all people containing "abc" in their first name or last name".\n`)
