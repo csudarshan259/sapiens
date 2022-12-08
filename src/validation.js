@@ -39,7 +39,8 @@ function checkPid(personId) {
 }
 function duplicatePerson(personObj, newPersonObj, type) {
 
-    const existingPerson = personObj.find(x => x.firstname.toString().toLowerCase() == newPersonObj.firstname.toString().toLowerCase() && x.lastname.toString().toLowerCase() == newPersonObj.lastname.toString().toLowerCase());
+    const existingPerson = personObj.find(x => x.firstname.toString().toLowerCase() == newPersonObj.firstname.toString().toLowerCase() &&
+     x.lastname.toString().toLowerCase() == newPersonObj.lastname.toString().toLowerCase());
     if (existingPerson == undefined) {
         return false;
     }
@@ -47,8 +48,20 @@ function duplicatePerson(personObj, newPersonObj, type) {
 
     return true;
 }
+function duplicatePersonEdit(personObj, newPersonObj, type) {
 
-function duplicateAddress(personId, addressObj, newAddressObj, type, oldId) {
+    const existingPerson = personObj.find(x => x.firstname.toString().toLowerCase() == newPersonObj.firstname.toString().toLowerCase()
+    && x.lastname.toString().toLowerCase() == newPersonObj.lastname.toString().toLowerCase()
+    && x.dateofbirth.toString() == newPersonObj.dateofbirth.toString()
+    && x.nickname.toString().toLowerCase()== newPersonObj.nickname.toString().toLowerCase() );
+    if (existingPerson == undefined) {
+        return false;
+    }
+    console.log(`Could not ${type}. Person already contains same values.`);
+
+    return true;
+}
+function duplicateAddress(personId, addressObj, newAddressObj, type) {
 
 
 
@@ -86,7 +99,7 @@ function duplicateAddress(personId, addressObj, newAddressObj, type, oldId) {
 
             paObj.push(person_addressObj);
             fs.writeFileSync(persistence + person_address, JSON.stringify(paObj));
-            console.log(`Existing address with personId ${personId} added successfully.`);
+            console.log(`Existing address with personId ${personId} and address id ${person_addressObj.addressId} added successfully.`);
             return true;
         }
     }
@@ -113,20 +126,21 @@ async function isEuropeanCountry(country) {
         return await temp;
     }).catch(err => {
         count += 1;
-        console.log("Something went wrong. Kindly check device internet connection");
+        console.log("Something went wrong. Kindly check device internet connection.");
     });
 
     if (countryPresent) {
         return true;
     }
     if (count != 1)
-        console.log("Country should be from Europe");
+        console.log("Country should be from Europe.");
     return false;
 
 }
 module.exports = {
     isEmpty,
     duplicatePerson,
+    duplicatePersonEdit,
     dobValidation,
     duplicateAddress,
     checkPid,

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { isEmpty, duplicatePerson, dobValidation, isEuropeanCountry, hasNumber } = require('./validation');
+const { isEmpty, duplicatePerson, dobValidation, isEuropeanCountry, hasNumber, duplicatePersonEdit } = require('./validation');
 const { persistence, person, person_address, pid, address } = require('../constants');
 
 function listPeople(options) {
@@ -75,15 +75,14 @@ function editPerson(options) {
             console.log("First name, last name and nickname cannot contain numbers");
             return;
         }
-        if (duplicatePerson(personObj, newObj, "edit")) {
+        if (duplicatePersonEdit(personObj, newObj, "edit")) {
             return;
         }
         let index = personObj.findIndex((v) => v.id === options.id);
 
         personObj[index] = newObj;
         fs.writeFileSync(persistence + person, JSON.stringify(personObj));
-        // console.log(personObj);
-        // console.log(options);
+
         console.log("Person updated successfully.");
     } catch (err) {
         console.log(err);
@@ -112,7 +111,6 @@ function deletePerson(options) {
         const personAddress = personAddressObj.find(p => p.personId == options.id);
 
         const personAddressIndex = personAddressObj.findIndex((v) => v.personId === options.id);
-        console.log(personAddressIndex);
 
         if (personAddressIndex == -1) {
         } else {
@@ -141,9 +139,12 @@ function searchPerson(options) {
             return;
         }
 
-        const filteredResult = personObj.find((p) => p.firstname.includes(options.search_input) || p.lastname.includes(options.search_input));
-
+        const filteredResult = personObj.filter((p) => p.firstname.toString().toLowerCase().includes(options.search_input.toString().toLowerCase()) || p.lastname.toString().toLowerCase().includes(options.search_input.toString().toLowerCase()));
+        if(filteredResult)
         console.table(filteredResult);
+        else{
+            console.log("No match found");
+        }
 
     } catch (err) {
         console.log(err);

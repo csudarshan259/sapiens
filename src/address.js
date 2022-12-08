@@ -19,13 +19,9 @@ function addressGeneric(options) {
             deleteAddress(options)
             break;
     }
-    // console.log(options);
 }
 async function createAddress(options) {
     try {
-        // Note that jsonString will be a <Buffer> since we did not specify an
-        // encoding type for the file. But it'll still work because JSON.parse() will
-        // use <Buffer>.toString().
         const jsonString = fs.readFileSync(persistence + address);
         const addressObj = JSON.parse(jsonString);
 
@@ -50,7 +46,7 @@ async function createAddress(options) {
         if (!checkPid(options.personId)) {
             return;
         }
-        if (duplicateAddress(options.personId, addressObj, newObj, "add", oldId.counter)) {
+        if (duplicateAddress(options.personId, addressObj, newObj, "add")) {
             return;
         }
 
@@ -66,13 +62,13 @@ async function createAddress(options) {
         }
         paObj.push(person_addressObj);
         fs.writeFileSync(persistence + person_address, JSON.stringify(paObj));
-        console.log("Address added successfully");
+        console.log(`Address added successfully with address id ${newId}`);
     } catch (err) {
         console.log(err);
         return;
     }
 }
-function editAddress(options) {
+async function editAddress(options) {
     try {
 
         const jsonString = fs.readFileSync(persistence + address);
@@ -92,6 +88,13 @@ function editAddress(options) {
             country: options.country != undefined ? options.country : addressToUpdate.country,
             postcode: options.postcode != undefined ? options.postcode : addressToUpdate.postcode
         }
+        if(isNaN(newObj.postcode)){
+            console.log("Postal code cannot contain special symbols or characters");
+            return;
+        }
+        if(options.country != undefined && ! await isEuropeanCountry(newObj.country.toString().toLowerCase())){
+            return;
+        }
         if (duplicateAddress(null, addressObj, newObj, "edit")) {
             return;
         }
@@ -99,8 +102,7 @@ function editAddress(options) {
 
         addressObj[index] = newObj;
         fs.writeFileSync(persistence + address, JSON.stringify(addressObj));
-        // console.log(personObj);
-        // console.log(options);
+
         console.log("Address updated successfully.");
     } catch (err) {
         console.log(err);
@@ -129,16 +131,13 @@ function deleteAddress(options) {
 
         const personAddress = personAddressObj.find(p => p.addressId == options.id);
         const personAddressIndex = personAddressObj.findIndex((v) => v.addressId === options.id);
-        // console.log(personAddressIndex);
-        // console.log(personAddress);
+
         if (personAddressIndex == -1) {
         } else {
-            // personAddressObj.splice(personAddressIndex,1);
-            // personAddress.filter(function(pa) {
+
             personAddressObj = personAddressObj.filter(function (pao) {
                 return pao.addressId != personAddress.addressId;
             });
-            // });
             fs.writeFileSync(persistence + person_address, JSON.stringify(personAddressObj)); //delete from person_address.json
 
         }
@@ -150,15 +149,8 @@ function deleteAddress(options) {
 
 
 
-
-    // console.log(options)
 }
-// function searchAddress(options){
-//     console.log(options)
-// }
-// function viewSingleAddress(options){
-//     console.log(options)
-// }
+
 module.exports = {
     addressGeneric,
     createAddress,
