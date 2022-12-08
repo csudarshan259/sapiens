@@ -38,11 +38,12 @@ function addPerson(options) {
             console.log("First name, last name and nickname cannot contain numbers");
             return;
         }
-        updatePidFile(newId);
 
         if (duplicatePerson(personObj, newObj, "add")) {
             return;
         }
+        updatePidFile(newId);
+
         personObj.push(newObj);
         fs.writeFileSync(persistence + person, JSON.stringify(personObj));
         console.log(`Person added successfully. New person id is ${newId}`);
