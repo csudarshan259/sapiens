@@ -185,7 +185,7 @@ const args = yargs.usage("person [command] [command-options] [arguments]")
             ).option(
                 'pc',
                 {
-                    alias:"postalcode",
+                    alias:"postcode",
                     description: "Postal code of address",
                     demandOption:false,
                     type: "string"

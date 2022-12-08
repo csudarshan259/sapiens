@@ -32,7 +32,6 @@ function createAddress(options) {
         const incrementer = fs.readFileSync(persistence + aid);
         const oldId = JSON.parse(incrementer);
         const newId = oldId.counter + 1;
-        updateAidFile(newId);
 
         const newObj = {
             id: newId,
@@ -41,20 +40,24 @@ function createAddress(options) {
             country: options.country != undefined ? options.country : "",
             postcode: options.pc != undefined ? options.pc : ""
         }
-        if (duplicateAddress(addressObj, newObj, "add")) {
+        if (duplicateAddress(options.personId,addressObj, newObj, "add",oldId.counter)) {
             return;
         }
         if(!checkPid(options.personId)){
             return;
         }
+        updateAidFile(newId);
         addressObj.push(newObj);
-        fs.writeFileSync(persistence + address, JSON.stringify(personObj));
+        fs.writeFileSync(persistence + address, JSON.stringify(addressObj));
 
+        const paString = fs.readFileSync(persistence + person_address);
+        const paObj = JSON.parse(paString);
         const person_addressObj = {
             personId: options.personId,
             addressId: newId
         }
-        fs.writeFileSync(persistence + person_address, JSON.stringify(person_addressObj));
+        paObj.push(person_addressObj);
+        fs.writeFileSync(persistence + person_address, JSON.stringify(paObj));
         console.log("Address added successfully");
     } catch (err) {
         console.log(err);
@@ -64,7 +67,41 @@ function createAddress(options) {
     console.log(options)
 }
 function editAddress(options) {
-    console.log(options)
+    try {
+
+        const jsonString = fs.readFileSync(persistence + address);
+        const addressObj = JSON.parse(jsonString);
+        if (isEmpty(addressObj, "person")) {
+            return;
+        }
+        const addressToUpdate = addressObj.find(x => x.id == options.id);
+        if (addressToUpdate == undefined) {
+            console.log("No data found for the given id.");
+            return;
+        }
+        const newObj = {
+            id: options.id,
+            line1: options.line1 != undefined ? options.line1 : addressToUpdate.line1,
+            line2: options.line2 != undefined ? options.line2 : addressToUpdate.line2,
+            country: options.country != undefined ? options.country : addressToUpdate.country,
+            postcode: options.postcode != undefined ? options.postcode : addressToUpdate.postcode
+        }
+        if (duplicateAddress(null,addressObj, newObj, "edit")) {
+            return;
+        }
+        const index = addressObj.findIndex((v) => v.id === options.id);
+
+        addressObj[index] = newObj;
+        fs.writeFileSync(persistence + address, JSON.stringify(addressObj));
+        // console.log(personObj);
+        // console.log(options);
+        console.log("Address updated successfully.");
+    } catch (err) {
+        console.log(err);
+        return;
+    }
+
+
 }
 function deleteAddress(options) {
     console.log(options)
