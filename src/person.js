@@ -56,6 +56,7 @@ function editPerson(options) {
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
         if (isEmpty(personObj, "person")) {
+            // updatePidFile(0);
             return;
         }
         const personToUpdate = personObj.find(x => x.id == options.id);
@@ -63,7 +64,6 @@ function editPerson(options) {
             console.log("No data found for the given id.");
             return;
         }
-        // console.log(personToUpdate);
         const newObj = {
             id: options.id,
             firstname: options.f != undefined ? options.f : personToUpdate.firstname,
@@ -95,6 +95,8 @@ function deletePerson(options) {
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
         if (isEmpty(personObj, "person")) {
+
+            // updatePidFile(0);
             return;
         }
         const index = personObj.findIndex(p => p.id == options.id);
@@ -114,7 +116,6 @@ function deletePerson(options) {
 
         if (personAddressIndex == -1) {
         } else {
-            // personAddressObj.splice(personAddressIndex,1);
 
             personAddressObj = personAddressObj.filter(function (pao) {
                 return pao.personId != personAddress.personId;
@@ -132,10 +133,11 @@ function deletePerson(options) {
 }
 function searchPerson(options) {
     try {
-        // console.log(options);
+
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
         if (isEmpty(personObj, "person")) {
+            // updatePidFile(0);
             return;
         }
 
@@ -155,11 +157,10 @@ function viewSinglePerson(options) {
     const jsonString = fs.readFileSync(persistence + person);
     const personObj = JSON.parse(jsonString);
     if (isEmpty(personObj, "person")) {
+        // updatePidFile(0);
         return;
     }
     const singlePerson = personObj.filter((v) => v.id == options.id);
-    // console.log(singlePerson);
-
     const addressString = fs.readFileSync(persistence + address);
     const addressObj = JSON.parse(addressString);
     const personAddressString = fs.readFileSync(persistence + person_address);

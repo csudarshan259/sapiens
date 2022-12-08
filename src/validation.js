@@ -26,7 +26,6 @@ function isEmpty(arr, type) {
     }
 
 }
-
 function checkPid(personId) {
     const jsonString = fs.readFileSync(persistence + person);
     const personObj = JSON.parse(jsonString);
