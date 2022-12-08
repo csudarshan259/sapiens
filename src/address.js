@@ -1,6 +1,6 @@
 
 const fs = require('fs');
-const { isEmpty, duplicateAddress, checkPid } = require('./validation');
+const { isEmpty, duplicateAddress, checkPid,isEuropeanCountry } = require('./validation');
 const { persistence, address, person_address, aid } = require('../constants');
 function updateAidFile(incrementValue) {
     const obj = { counter: incrementValue };
@@ -21,7 +21,7 @@ function addressGeneric(options) {
     }
     // console.log(options);
 }
-function createAddress(options) {
+async function createAddress(options) {
     try {
         // Note that jsonString will be a <Buffer> since we did not specify an
         // encoding type for the file. But it'll still work because JSON.parse() will
@@ -39,6 +39,13 @@ function createAddress(options) {
             line2: options.line2 != undefined ? options.line2 : "",
             country: options.country != undefined ? options.country : "",
             postcode: options.pc != undefined ? options.pc : ""
+        }
+        if(isNaN(newObj.postcode)){
+            console.log("Postal code cannot contain special symbols or characters");
+            return;
+        }
+        if(! await isEuropeanCountry(options.country.toString().toLowerCase())){
+            return;
         }
         if (!checkPid(options.personId)) {
             return;

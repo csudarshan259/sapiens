@@ -9,31 +9,35 @@
 //     }
 //     return false;
 // }
-const {persistence,person, person_address} = require('../constants');
+const { persistence, person, person_address } = require('../constants');
 const fs = require('fs');
-
-function isEmpty(arr,type){
-    if(arr && arr.length){
+const { default: axios } = require('axios');
+function hasNumber(value){
+    var isDigit = /\d/;
+ return isDigit.test(value);
+}
+function isEmpty(arr, type) {
+    if (arr && arr.length) {
         return false;
     }
-    else{
+    else {
         console.log(`No ${type} present.`);
         return true;
     }
 
 }
 
-function checkPid(personId){
+function checkPid(personId) {
     const jsonString = fs.readFileSync(persistence + person);
-        const personObj = JSON.parse(jsonString);
-            const index = personObj.findIndex(p => p.id == personId);
-            if (index == -1) {
-                console.log("No person data found for the given id.");
-                return false;
-            }
-            return true;
+    const personObj = JSON.parse(jsonString);
+    const index = personObj.findIndex(p => p.id == personId);
+    if (index == -1) {
+        console.log("No person data found for the given id.");
+        return false;
+    }
+    return true;
 }
-function duplicatePerson(personObj,newPersonObj,type){
+function duplicatePerson(personObj, newPersonObj, type) {
 
     const existingPerson = personObj.find(x => x.firstname.toString().toLowerCase() == newPersonObj.firstname.toString().toLowerCase() && x.lastname.toString().toLowerCase() == newPersonObj.lastname.toString().toLowerCase());
     if (existingPerson == undefined) {
@@ -44,40 +48,40 @@ function duplicatePerson(personObj,newPersonObj,type){
     return true;
 }
 
-function duplicateAddress(personId,addressObj,newAddressObj,type,oldId){
+function duplicateAddress(personId, addressObj, newAddressObj, type, oldId) {
 
 
 
-    const newAddressLine1 = newAddressObj.line1?newAddressObj.line1:"";
-    const newAddressLine2 = newAddressObj.line2?newAddressObj.line2:"";
-    const newAddressCountry = newAddressObj.country?newAddressObj.country:"";
-    const newAddressPostCode = newAddressObj.postcode?newAddressObj.postcode:"";
+    const newAddressLine1 = newAddressObj.line1 ? newAddressObj.line1 : "";
+    const newAddressLine2 = newAddressObj.line2 ? newAddressObj.line2 : "";
+    const newAddressCountry = newAddressObj.country ? newAddressObj.country : "";
+    const newAddressPostCode = newAddressObj.postcode ? newAddressObj.postcode : "";
     const existingAddress = addressObj.find(x => x.line1.toString().toLowerCase() == newAddressLine1.toString().toLowerCase() &&
-     x.line2.toString().toLowerCase() == newAddressLine2.toLowerCase() &&
-    x.country.toString().toLowerCase() == newAddressCountry.toString().toLowerCase() &&
-    x.postcode.toString().toLowerCase() == newAddressPostCode.toString().toLowerCase());
+        x.line2.toString().toLowerCase() == newAddressLine2.toLowerCase() &&
+        x.country.toString().toLowerCase() == newAddressCountry.toString().toLowerCase() &&
+        x.postcode.toString().toLowerCase() == newAddressPostCode.toString().toLowerCase());
 
     // console.log("console.log existing address",existingAddress);
     if (existingAddress == undefined) {
         return false;
     }
-    if(type=="add"){
-        const personAddressJsonString= fs.readFileSync(persistence+person_address);
+    if (type == "add") {
+        const personAddressJsonString = fs.readFileSync(persistence + person_address);
         const personAddressObj = JSON.parse(personAddressJsonString);
 
-        const existingPersonAddressObj = personAddressObj.find(obj=>obj.addressId ==existingAddress.id && obj.personId==personId);
+        const existingPersonAddressObj = personAddressObj.find(obj => obj.addressId == existingAddress.id && obj.personId == personId);
 
-        if(existingAddress != undefined && (existingPersonAddressObj != undefined)){
+        if (existingAddress != undefined && (existingPersonAddressObj != undefined)) {
             console.log(`Could not ${type}. Address exists already.`);
             return true;
-         }
-        if(existingAddress != undefined){
-        const paString = fs.readFileSync(persistence + person_address);
-        const paObj = JSON.parse(paString);
-        const person_addressObj = {
-            personId: personId,
-            addressId: existingAddress.id
-        };
+        }
+        if (existingAddress != undefined) {
+            const paString = fs.readFileSync(persistence + person_address);
+            const paObj = JSON.parse(paString);
+            const person_addressObj = {
+                personId: personId,
+                addressId: existingAddress.id
+            };
 
 
             paObj.push(person_addressObj);
@@ -92,20 +96,32 @@ function duplicateAddress(personId,addressObj,newAddressObj,type,oldId){
 
     return true;
 }
-function dobValidation(dob){
+function dobValidation(dob) {
 
 
-        if( dob.toString().split('/').length - 1 ==2){
-            return true;
-        }
-        console.log("Date of birth should be in dd/mm/yyyy format.");
-        return false;
+    if (dob.toString().split('/').length - 1 == 2) {
+        return true;
+    }
+    console.log("Date of birth should be in dd/mm/yyyy format.");
+    return false;
 
 }
-function isEuropeanCountry(country){
-   fetch('https://restcountries.com/v3.1/region/europe').then(res=>{
-    console.log(res);
-   });
+async function isEuropeanCountry(country) {
+    let count = 0;
+    let countryPresent = await axios.get('https://restcountries.com/v2/region/europe').then(async res => {
+        const temp = res.data.find(x => x.name.toString().toLowerCase() == country);
+        return await temp;
+    }).catch(err => {
+        count += 1;
+        console.log("Something went wrong. Kindly check device internet connection");
+    });
+
+    if (countryPresent) {
+        return true;
+    }
+    if (count != 1)
+        console.log("Country should be from Europe");
+    return false;
 
 }
 module.exports = {
@@ -114,5 +130,6 @@ module.exports = {
     dobValidation,
     duplicateAddress,
     checkPid,
-    isEuropeanCountry
+    isEuropeanCountry,
+    hasNumber
 }

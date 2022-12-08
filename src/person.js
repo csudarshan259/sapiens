@@ -1,6 +1,6 @@
 const fs = require('fs');
-const { isEmpty, duplicatePerson,dobValidation, isEuropeanCountry } = require('./validation');
-const {persistence,person,person_address,pid, address} = require('../constants');
+const { isEmpty, duplicatePerson, dobValidation, isEuropeanCountry, hasNumber } = require('./validation');
+const { persistence, person, person_address, pid, address } = require('../constants');
 
 function listPeople(options) {
     if (options.id != undefined) {
@@ -9,7 +9,7 @@ function listPeople(options) {
     }
     const jsonString = fs.readFileSync(persistence + person);
     const personObj = JSON.parse(jsonString);
-console.table(personObj);
+    console.table(personObj);
 }
 function updatePidFile(incrementValue) {
     const obj = { counter: incrementValue };
@@ -23,10 +23,10 @@ function addPerson(options) {
         const incrementer = fs.readFileSync(persistence + pid);
         const oldId = JSON.parse(incrementer);
         const newId = oldId.counter + 1;
-        updatePidFile(newId);
-        if(!dobValidation(options.dob)){
+        if (!dobValidation(options.dob) ) {
             return;
         }
+
         const newObj = {
             id: newId,
             firstname: options.f,
@@ -34,7 +34,13 @@ function addPerson(options) {
             dateofbirth: options.dob,
             nickname: options.n != undefined ? options.n : ""
         }
-        if(duplicatePerson(personObj,newObj,"add")){
+        if(hasNumber(newObj.firstname) || hasNumber(newObj.lastname) || hasNumber(newObj.nickname) ){
+            console.log("First name, last name and nickname cannot contain numbers");
+            return;
+        }
+        updatePidFile(newId);
+
+        if (duplicatePerson(personObj, newObj, "add")) {
             return;
         }
         personObj.push(newObj);
@@ -65,7 +71,11 @@ function editPerson(options) {
             dateofbirth: options.d != undefined ? options.d : personToUpdate.dateofbirth,
             nickname: options.n != undefined ? options.n : personToUpdate.nickname
         }
-        if(duplicatePerson(personObj,newObj,"edit")){
+        if(hasNumber(newObj.firstname) || hasNumber(newObj.lastname) || hasNumber(newObj.nickname) ){
+            console.log("First name, last name and nickname cannot contain numbers");
+            return;
+        }
+        if (duplicatePerson(personObj, newObj, "edit")) {
             return;
         }
         let index = personObj.findIndex((v) => v.id === options.id);
@@ -96,23 +106,23 @@ function deletePerson(options) {
         personObj.splice(index, 1);
         fs.writeFileSync(persistence + person, JSON.stringify(personObj)); //delete from person.json
 
-        const personAddressJsonString = fs.readFileSync(persistence+person_address);
+        const personAddressJsonString = fs.readFileSync(persistence + person_address);
         let personAddressObj = JSON.parse(personAddressJsonString);
 
-        const personAddress= personAddressObj.find(p => p.personId == options.id);
+        const personAddress = personAddressObj.find(p => p.personId == options.id);
 
         const personAddressIndex = personAddressObj.findIndex((v) => v.personId === options.id);
         console.log(personAddressIndex);
 
         if (personAddressIndex == -1) {
-        }else{
+        } else {
             // personAddressObj.splice(personAddressIndex,1);
 
-                personAddressObj = personAddressObj.filter(function(pao) {
-                    return pao.personId != personAddress.personId;
-                });
+            personAddressObj = personAddressObj.filter(function (pao) {
+                return pao.personId != personAddress.personId;
+            });
 
-            fs.writeFileSync(persistence+person_address,JSON.stringify(personAddressObj)); //delete from person_address.json
+            fs.writeFileSync(persistence + person_address, JSON.stringify(personAddressObj)); //delete from person_address.json
 
         }
 
@@ -149,45 +159,45 @@ function viewSinglePerson(options) {
     const singlePerson = personObj.filter((v) => v.id == options.id);
     // console.log(singlePerson);
 
-    const addressString = fs.readFileSync(persistence+address);
+    const addressString = fs.readFileSync(persistence + address);
     const addressObj = JSON.parse(addressString);
-    const personAddressString = fs.readFileSync(persistence+person_address);
+    const personAddressString = fs.readFileSync(persistence + person_address);
     const personAddressObj = JSON.parse(personAddressString);
-    var pao=[];
+    var pao = [];
 
-    var addr=[];
-    var custobj=[];
+    var addr = [];
+    var custobj = [];
 
 
-        const paotemp = personAddressObj.filter((pa)=>pa.personId==options.id);
-        pao.push(paotemp);
-        pao.forEach((paoi)=>{
-            // console.log(paoi)
-            paoi.forEach(element => {
-                const addrtemp = addressObj.filter((a)=>a.id==element.addressId);
-                // console.log(addrtemp)
-                addr.push(addrtemp);
+    const paotemp = personAddressObj.filter((pa) => pa.personId == options.id);
+    pao.push(paotemp);
+    pao.forEach((paoi) => {
+        // console.log(paoi)
+        paoi.forEach(element => {
+            const addrtemp = addressObj.filter((a) => a.id == element.addressId);
+            // console.log(addrtemp)
+            addr.push(addrtemp);
 
-            });
         });
-        // console.log(addr)
-        // addr.forEach(addrtemp1 => {
-        //     // console.log(addrtemp1);
-        //     const customobj = {
-        //         person:element,
-        //         address:addrtemp1[0]
-        //     }
-        //     custobj.push(customobj);
-        //     });
-        // });
+    });
+    // console.log(addr)
+    // addr.forEach(addrtemp1 => {
+    //     // console.log(addrtemp1);
+    //     const customobj = {
+    //         person:element,
+    //         address:addrtemp1[0]
+    //     }
+    //     custobj.push(customobj);
+    //     });
+    // });
 
-if (singlePerson != undefined) {
-    console.table(singlePerson);
-    addr.forEach(addrtemp=>{
-        console.table(addrtemp);
-    })
-    return;
-}
+    if (singlePerson != undefined) {
+        console.table(singlePerson);
+        addr.forEach(addrtemp => {
+            console.table(addrtemp);
+        })
+        return;
+    }
     console.log("No data found for the given id.")
 }
 
