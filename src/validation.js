@@ -9,12 +9,13 @@
 //     }
 //     return false;
 // }
+const moment= require('moment');
 const { persistence, person, person_address } = require('../constants');
 const fs = require('fs');
 const { default: axios } = require('axios');
-function hasNumber(value){
+function hasNumber(value) {
     var isDigit = /\d/;
- return isDigit.test(value);
+    return isDigit.test(value);
 }
 function isEmpty(arr, type) {
     if (arr && arr.length) {
@@ -39,7 +40,7 @@ function checkPid(personId) {
 function duplicatePerson(personObj, newPersonObj, type) {
 
     const existingPerson = personObj.find(x => x.firstname.toString().toLowerCase() == newPersonObj.firstname.toString().toLowerCase() &&
-     x.lastname.toString().toLowerCase() == newPersonObj.lastname.toString().toLowerCase());
+        x.lastname.toString().toLowerCase() == newPersonObj.lastname.toString().toLowerCase());
     if (existingPerson == undefined) {
         return false;
     }
@@ -50,9 +51,9 @@ function duplicatePerson(personObj, newPersonObj, type) {
 function duplicatePersonEdit(personObj, newPersonObj, type) {
 
     const existingPerson = personObj.find(x => x.firstname.toString().toLowerCase() == newPersonObj.firstname.toString().toLowerCase()
-    && x.lastname.toString().toLowerCase() == newPersonObj.lastname.toString().toLowerCase()
-    && x.dateofbirth.toString() == newPersonObj.dateofbirth.toString()
-    && x.nickname.toString().toLowerCase()== newPersonObj.nickname.toString().toLowerCase() );
+        && x.lastname.toString().toLowerCase() == newPersonObj.lastname.toString().toLowerCase()
+        && x.dateofbirth.toString() == newPersonObj.dateofbirth.toString()
+        && x.nickname.toString().toLowerCase() == newPersonObj.nickname.toString().toLowerCase());
     if (existingPerson == undefined) {
         return false;
     }
@@ -109,14 +110,36 @@ function duplicateAddress(personId, addressObj, newAddressObj, type) {
     return true;
 }
 function dobValidation(dob) {
+    const data = dob.toString().split("/");
 
-
-    if (dob.toString().split('/').length - 1 == 2) {
-        return true;
+    if (data.length - 1 == 2) {
+    } else {
+        console.log("Date of birth should be in dd/mm/yyyy format.");
+        return false;
     }
-    console.log("Date of birth should be in dd/mm/yyyy format.");
-    return false;
 
+        if(data[0]==''||data[1]==''||data[2]==''){
+
+            console.log("Please provide valid date.");
+            return false;
+        }
+        if(parseInt(data[0])>=1 && parseInt(data[0]) <=31 && parseInt(data[1])>=1 && parseInt(data[1])<=12 ){
+
+        }else{
+            console.log("Please provide vaild date");
+            return false;
+        }
+        if(data[0].length != 2 || data[1].length !=2 || data[2].length != 4){
+            console.log("Please provide valid date.");
+            return false;
+        }
+        if(isNaN(data[0]) || isNaN(data[1]) || isNaN(data[2]))
+        {
+            console.log("Please provide valid date.");
+            return false;
+        }
+
+    return true;
 }
 async function isEuropeanCountry(country) {
     let count = 0;
