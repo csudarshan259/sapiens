@@ -9,6 +9,9 @@ function listPeople(options) {
     }
     const jsonString = fs.readFileSync(persistence + person);
     const personObj = JSON.parse(jsonString);
+    if(isEmpty(personObj,"person data")){
+        return;
+    }
     console.table(personObj);
 }
 function updatePidFile(incrementValue) {
