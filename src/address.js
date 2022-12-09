@@ -54,7 +54,7 @@ async function createAddress(options) {
         if (duplicateAddress(options.personId, addressObj, newObj, "add")) {
             return;
         }
-        if(! await isEuropeanCountry(options.country.toString().toLowerCase())){
+        if(options.country != undefined && ! await isEuropeanCountry(options.country.toString().toLowerCase())){
             return;
         }
         updateAidFile(newId);

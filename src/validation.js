@@ -128,8 +128,8 @@ function dobValidation(dob) {
 }
 async function isEuropeanCountry(country) {
     let count = 0;
-    let countryPresent = await axios.get('https://restcountries.com/v2/region/europe').then(async res => {
-        const temp = res.data.find(x => x.name.toString().toLowerCase() == country);
+    let countryPresent = await axios.get('https://restcountries.com/v3.1/region/europe').then(async res => {
+        const temp = res.data.find(x => x.name.common.toString().toLowerCase() == country);
         return await temp;
     }).catch(err => {
         count += 1;
