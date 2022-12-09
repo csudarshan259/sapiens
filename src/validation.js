@@ -144,6 +144,27 @@ async function isEuropeanCountry(country) {
     return false;
 
 }
+function propertiesEmtpy(options,type){
+    const newAddressLine1 = options.line1 != undefined && options.line1.length >=0? options.line1 : undefined;
+    if(newAddressLine1 == ""){
+        console.log("Mandatory address field like line1 cannot be empty while adding or editing.");
+        return true;
+    }
+    return false;
+}
+function propertiesEmtpyForPerson(options){
+    const firstname = options.firstname ? options.firstname : "";
+    const lastname = options.lastname ? options.lastname : "";
+    let dob = options.dateofbirth ? options.dateofbirth : "";
+    if(dob == ""){
+        dob = options.dob ? options.dob : "";
+    }
+    if(firstname =="" || lastname == "" || dob ==""){
+        console.log("Mandatory fields like first name, last name or date of birth cannot be empty while adding or editing.");
+        return true;
+    }
+    return false;
+}
 module.exports = {
     isEmpty,
     duplicatePerson,
@@ -152,5 +173,7 @@ module.exports = {
     duplicateAddress,
     checkPid,
     isEuropeanCountry,
-    hasNumber
+    hasNumber,
+    propertiesEmtpy,
+    propertiesEmtpyForPerson
 }

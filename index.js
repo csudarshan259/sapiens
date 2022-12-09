@@ -162,7 +162,7 @@ const args = yargs.usage("person [command] [command-options] [arguments]")
                 'l1',
                 {
                     alias:"line1",
-                    description: "Address line 1",
+                    description: "Address line 1 (Required)",
                     demandOption:false,
                     type: "string"
                 }
@@ -192,6 +192,9 @@ const args = yargs.usage("person [command] [command-options] [arguments]")
                 }
             ).check((yargs)=>{
                 // console.log(yargs);
+                if(yargs.operation == undefined){
+                    throw (new Error(`Please select one operation (add/edit/delete)`));
+                }
                 if(yargs.operation=="add" && yargs.i != undefined && yargs.l1 != undefined){
                     return true;
                 }

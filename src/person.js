@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { isEmpty, duplicatePerson, dobValidation, isEuropeanCountry, hasNumber, duplicatePersonEdit } = require('./validation');
+const { isEmpty, duplicatePerson, dobValidation, propertiesEmtpyForPerson, hasNumber, duplicatePersonEdit } = require('./validation');
 const { persistence, person, person_address, pid, address } = require('../constants');
 
 function listPeople(options) {
@@ -26,6 +26,9 @@ function addPerson(options) {
         const incrementer = fs.readFileSync(persistence + pid);
         const oldId = JSON.parse(incrementer);
         const newId = oldId.counter + 1;
+        if(propertiesEmtpyForPerson(options)){
+            return;
+        }
         if (!dobValidation(options.dob) ) {
             return;
         }
@@ -73,6 +76,9 @@ function editPerson(options) {
             lastname: options.l != undefined ? options.l : personToUpdate.lastname,
             dateofbirth: options.d != undefined ? options.d : personToUpdate.dateofbirth,
             nickname: options.n != undefined ? options.n : personToUpdate.nickname
+        }
+        if(propertiesEmtpyForPerson(newObj)){
+            return;
         }
         if(hasNumber(newObj.firstname) || hasNumber(newObj.lastname) || hasNumber(newObj.nickname) ){
             console.log("First name, last name and nickname cannot contain numbers");

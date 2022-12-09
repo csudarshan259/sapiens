@@ -1,6 +1,6 @@
 
 const fs = require('fs');
-const { isEmpty, duplicateAddress, checkPid,isEuropeanCountry } = require('./validation');
+const { isEmpty, duplicateAddress, checkPid,isEuropeanCountry,propertiesEmtpy } = require('./validation');
 const { persistence, address, person_address, aid } = require('../constants');
 function updateAidFile(incrementValue) {
     const obj = { counter: incrementValue };
@@ -35,6 +35,13 @@ async function createAddress(options) {
             line2: options.line2 != undefined ? options.line2 : "",
             country: options.country != undefined ? options.country : "",
             postcode: options.pc != undefined ? options.pc : ""
+        }
+        if(propertiesEmtpy(options,"add")){
+            return;
+        }
+        if(newObj.line2 !="" && !isNaN(line2)){
+            console.log("line2 cannot contain numbers");
+            return;
         }
         if(isNaN(newObj.postcode)){
             console.log("Postal code cannot contain special symbols or characters");
@@ -76,6 +83,10 @@ async function editAddress(options) {
         if (isEmpty(addressObj, "address")) {
             return;
         }
+        if(propertiesEmtpy(options)){
+            return;
+        }
+
         const addressToUpdate = addressObj.find(x => x.id == options.id);
         if (addressToUpdate == undefined) {
             console.log("No data found for the given id.");
