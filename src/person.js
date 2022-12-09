@@ -59,7 +59,7 @@ function editPerson(options) {
     try {
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
-        if (isEmpty(personObj, "person")) {
+        if (isEmpty(personObj, "person data")) {
             return;
         }
         const personToUpdate = personObj.find(x => x.id == options.id);
@@ -97,7 +97,7 @@ function deletePerson(options) {
     try {
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
-        if (isEmpty(personObj, "person")) {
+        if (isEmpty(personObj, "person data")) {
 
             return;
         }
@@ -138,7 +138,7 @@ function searchPerson(options) {
 
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
-        if (isEmpty(personObj, "person")) {
+        if (isEmpty(personObj, "person data")) {
             return;
         }
 
@@ -157,7 +157,7 @@ function searchPerson(options) {
 function viewSinglePerson(options) {
     const jsonString = fs.readFileSync(persistence + person);
     const personObj = JSON.parse(jsonString);
-    if (isEmpty(personObj, "person")) {
+    if (isEmpty(personObj, "person data")) {
         return;
     }
     const singlePerson = personObj.filter((v) => v.id == options.id);
