@@ -40,16 +40,16 @@ async function createAddress(options) {
             console.log("Postal code cannot contain special symbols or characters");
             return;
         }
-        if(! await isEuropeanCountry(options.country.toString().toLowerCase())){
-            return;
-        }
+
         if (!checkPid(options.personId)) {
             return;
         }
         if (duplicateAddress(options.personId, addressObj, newObj, "add")) {
             return;
         }
-
+        if(! await isEuropeanCountry(options.country.toString().toLowerCase())){
+            return;
+        }
         updateAidFile(newId);
         addressObj.push(newObj);
         fs.writeFileSync(persistence + address, JSON.stringify(addressObj));
@@ -92,10 +92,11 @@ async function editAddress(options) {
             console.log("Postal code cannot contain special symbols or characters");
             return;
         }
-        if(options.country != undefined && ! await isEuropeanCountry(newObj.country.toString().toLowerCase())){
+
+        if (duplicateAddress(null, addressObj, newObj, "edit")) {
             return;
         }
-        if (duplicateAddress(null, addressObj, newObj, "edit")) {
+        if(options.country != undefined && ! await isEuropeanCountry(newObj.country.toString().toLowerCase())){
             return;
         }
         const index = addressObj.findIndex((v) => v.id === options.id);

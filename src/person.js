@@ -143,7 +143,7 @@ function searchPerson(options) {
         }
 
         const filteredResult = personObj.filter((p) => p.firstname.toString().toLowerCase().includes(options.search_input.toString().toLowerCase()) || p.lastname.toString().toLowerCase().includes(options.search_input.toString().toLowerCase()));
-        if(filteredResult)
+        if(filteredResult.length !=0)
         console.table(filteredResult);
         else{
             console.log("No match found");
@@ -181,7 +181,7 @@ function viewSinglePerson(options) {
         });
     });
 
-    if (singlePerson != undefined) {
+    if (singlePerson.length !=0 ) {
         console.table(singlePerson);
         addr.forEach(addrtemp => {
             console.table(addrtemp);
