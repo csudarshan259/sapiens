@@ -1,15 +1,3 @@
-
-
-// function isEmpty(obj,type){
-//     if( obj // 👈 null and undefined check
-//     && Object.keys(obj).length === 0
-//     && Object.getPrototypeOf(obj) === Object.prototype){
-//         console.log(`No ${type} present`);
-//         return true;
-//     }
-//     return false;
-// }
-const moment= require('moment');
 const { persistence, person, person_address } = require('../constants');
 const fs = require('fs');
 const { default: axios } = require('axios');
@@ -63,8 +51,6 @@ function duplicatePersonEdit(personObj, newPersonObj, type) {
 }
 function duplicateAddress(personId, addressObj, newAddressObj, type) {
 
-
-
     const newAddressLine1 = newAddressObj.line1 ? newAddressObj.line1 : "";
     const newAddressLine2 = newAddressObj.line2 ? newAddressObj.line2 : "";
     const newAddressCountry = newAddressObj.country ? newAddressObj.country : "";
@@ -74,7 +60,6 @@ function duplicateAddress(personId, addressObj, newAddressObj, type) {
         x.country.toString().toLowerCase() == newAddressCountry.toString().toLowerCase() &&
         x.postcode.toString().toLowerCase() == newAddressPostCode.toString().toLowerCase());
 
-    // console.log("console.log existing address",existingAddress);
     if (existingAddress == undefined) {
         return false;
     }

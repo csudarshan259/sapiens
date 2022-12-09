@@ -74,7 +74,6 @@ async function editAddress(options) {
         const jsonString = fs.readFileSync(persistence + address);
         const addressObj = JSON.parse(jsonString);
         if (isEmpty(addressObj, "address")) {
-            // updateAidFile(0);
             return;
         }
         const addressToUpdate = addressObj.find(x => x.id == options.id);
@@ -117,7 +116,6 @@ function deleteAddress(options) {
         const jsonString = fs.readFileSync(persistence + address);
         const addressObj = JSON.parse(jsonString);
         if (isEmpty(addressObj, "address")) {
-            // updateAidFile(0);
             return;
         }
         const index = addressObj.findIndex(a => a.id == options.id);
@@ -126,7 +124,7 @@ function deleteAddress(options) {
             return;
         }
         addressObj.splice(index, 1);
-        fs.writeFileSync(persistence + address, JSON.stringify(addressObj)); //delete from person.json
+        fs.writeFileSync(persistence + address, JSON.stringify(addressObj)); //delete from address.json
 
         const personAddressJsonString = fs.readFileSync(persistence + person_address);
         let personAddressObj = JSON.parse(personAddressJsonString);

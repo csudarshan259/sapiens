@@ -57,7 +57,6 @@ function editPerson(options) {
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
         if (isEmpty(personObj, "person")) {
-            // updatePidFile(0);
             return;
         }
         const personToUpdate = personObj.find(x => x.id == options.id);
@@ -97,7 +96,6 @@ function deletePerson(options) {
         const personObj = JSON.parse(jsonString);
         if (isEmpty(personObj, "person")) {
 
-            // updatePidFile(0);
             return;
         }
         const index = personObj.findIndex(p => p.id == options.id);
@@ -138,7 +136,6 @@ function searchPerson(options) {
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
         if (isEmpty(personObj, "person")) {
-            // updatePidFile(0);
             return;
         }
 
@@ -158,7 +155,6 @@ function viewSinglePerson(options) {
     const jsonString = fs.readFileSync(persistence + person);
     const personObj = JSON.parse(jsonString);
     if (isEmpty(personObj, "person")) {
-        // updatePidFile(0);
         return;
     }
     const singlePerson = personObj.filter((v) => v.id == options.id);
@@ -175,24 +171,12 @@ function viewSinglePerson(options) {
     const paotemp = personAddressObj.filter((pa) => pa.personId == options.id);
     pao.push(paotemp);
     pao.forEach((paoi) => {
-        // console.log(paoi)
         paoi.forEach(element => {
             const addrtemp = addressObj.filter((a) => a.id == element.addressId);
-            // console.log(addrtemp)
             addr.push(addrtemp);
 
         });
     });
-    // console.log(addr)
-    // addr.forEach(addrtemp1 => {
-    //     // console.log(addrtemp1);
-    //     const customobj = {
-    //         person:element,
-    //         address:addrtemp1[0]
-    //     }
-    //     custobj.push(customobj);
-    //     });
-    // });
 
     if (singlePerson != undefined) {
         console.table(singlePerson);
