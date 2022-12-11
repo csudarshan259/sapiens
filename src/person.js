@@ -1,8 +1,9 @@
 const fs = require('fs');
-const { isEmpty, duplicatePerson, dobValidation, propertiesEmtpyForPerson, hasNumber, duplicatePersonEdit } = require('./validation');
+const { isEmpty, duplicatePerson, dobValidation, propertiesEmtpyForPerson, hasNumber, duplicatePersonEdit, createIfNotExist, sanitizeString } = require('./validation');
 const { persistence, person, person_address, pid, address } = require('../constants');
 
 function listPeople(options) {
+    createIfNotExist();
     if (options.id != undefined) {
         viewSinglePerson(options);
         return;
@@ -15,43 +16,49 @@ function listPeople(options) {
     console.table(personObj);
 }
 function updatePidFile(incrementValue) {
+    createIfNotExist();
     const obj = { counter: incrementValue };
     fs.writeFileSync(persistence + pid, JSON.stringify(obj));
     return;
 }
+
 function addPerson(options) {
     try {
+        createIfNotExist();
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
+   
+
         const incrementer = fs.readFileSync(persistence + pid);
         const oldId = JSON.parse(incrementer);
         const newId = oldId.counter + 1;
-        if(propertiesEmtpyForPerson(options)){
-            return;
-        }
-        if (!dobValidation(options.dob) ) {
-            return;
-        }
+        
 
-        const newObj = {
+        let newObj = {
             id: newId,
             firstname: options.f,
             lastname: options.l,
             dateofbirth: options.dob,
             nickname: options.n != undefined ? options.n : ""
         }
+         newObj = JSON.parse(sanitizeString(JSON.stringify(newObj)));
+         if(propertiesEmtpyForPerson(newObj)){
+            return;
+        }
+        if (!dobValidation(newObj.dateofbirth) ) {
+            return;
+        }
         if(hasNumber(newObj.firstname) || hasNumber(newObj.lastname) || hasNumber(newObj.nickname) ){
             console.log("First name, last name and nickname cannot contain numbers");
             return;
         }
-
         if (duplicatePerson(personObj, newObj, "add")) {
             return;
         }
         updatePidFile(newId);
 
         personObj.push(newObj);
-        fs.writeFileSync(persistence + person, JSON.stringify(personObj));
+        fs.writeFileSync(persistence + person, sanitizeString(JSON.stringify(personObj)));
         console.log(`Person added successfully. New person id is ${newId}`);
     } catch (err) {
         console.log(err);
@@ -60,8 +67,9 @@ function addPerson(options) {
 }
 function editPerson(options) {
     try {
+        createIfNotExist();
         const jsonString = fs.readFileSync(persistence + person);
-        const personObj = JSON.parse(jsonString);
+        const personObj = JSON.parse(sanitizeString(jsonString.toString()));
         if (isEmpty(personObj, "person data")) {
             return;
         }
@@ -70,14 +78,18 @@ function editPerson(options) {
             console.log("No data found for the given id.");
             return;
         }
-        const newObj = {
+        let newObj = {
             id: options.id,
             firstname: options.f != undefined ? options.f : personToUpdate.firstname,
             lastname: options.l != undefined ? options.l : personToUpdate.lastname,
             dateofbirth: options.d != undefined ? options.d : personToUpdate.dateofbirth,
             nickname: options.n != undefined ? options.n : personToUpdate.nickname
         }
+        newObj = JSON.parse(sanitizeString(JSON.stringify(newObj)));
         if(propertiesEmtpyForPerson(newObj)){
+            return;
+        }
+         if (!dobValidation(newObj.dateofbirth) ) {
             return;
         }
         if(hasNumber(newObj.firstname) || hasNumber(newObj.lastname) || hasNumber(newObj.nickname) ){
@@ -90,7 +102,7 @@ function editPerson(options) {
         let index = personObj.findIndex((v) => v.id === options.id);
 
         personObj[index] = newObj;
-        fs.writeFileSync(persistence + person, JSON.stringify(personObj));
+        fs.writeFileSync(persistence + person,sanitizeString(JSON.stringify(personObj)));
 
         console.log("Person updated successfully.");
     } catch (err) {
@@ -101,6 +113,7 @@ function editPerson(options) {
 
 function deletePerson(options) {
     try {
+        createIfNotExist();
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
         if (isEmpty(personObj, "person data")) {
@@ -141,7 +154,7 @@ function deletePerson(options) {
 }
 function searchPerson(options) {
     try {
-
+createIfNotExist();
         const jsonString = fs.readFileSync(persistence + person);
         const personObj = JSON.parse(jsonString);
         if (isEmpty(personObj, "person data")) {
@@ -161,6 +174,7 @@ function searchPerson(options) {
     }
 }
 function viewSinglePerson(options) {
+createIfNotExist();
     const jsonString = fs.readFileSync(persistence + person);
     const personObj = JSON.parse(jsonString);
     if (isEmpty(personObj, "person data")) {

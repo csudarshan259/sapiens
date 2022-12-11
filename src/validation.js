@@ -1,6 +1,8 @@
-const { persistence, person, person_address } = require('../constants');
 const fs = require('fs');
 const { default: axios } = require('axios');
+const path = require('path');
+const { persistence, person, person_address, pid, address, aid } = require('../constants');
+
 function hasNumber(value) {
     var isDigit = /\d/;
     return isDigit.test(value);
@@ -94,15 +96,17 @@ function duplicateAddress(personId, addressObj, newAddressObj, type) {
 
     return true;
 }
+function sanitizeString(str){
+    return str.toString().replace(/'/g,'');
+}
 function dobValidation(dob) {
-    const data = dob.toString().split("/");
-
+    dob = dob.toString().replace(/'/g, '');
+    const data = dob.split('/');
     if (data.length - 1 == 2) {
     } else {
         console.log("Date of birth should be in dd/mm/yyyy format.");
         return false;
     }
-
         if(data[0]==''||data[1]==''||data[2]==''){
 
             console.log("Please provide valid date.");
@@ -115,7 +119,7 @@ function dobValidation(dob) {
             return false;
         }
         if(data[0].length != 2 || data[1].length !=2 || data[2].length != 4){
-            console.log("Please provide valid date.");
+            console.log("Please provide date in dd/mm/yyyy format.");
             return false;
         }
         if(isNaN(data[0]) || isNaN(data[1]) || isNaN(data[2]))
@@ -165,6 +169,41 @@ function propertiesEmtpyForPerson(options){
     }
     return false;
 }
+function createFileIfNotExist(pathName){
+    if (!fs.existsSync(pathName)) {
+        const dirname = path.dirname(pathName);
+        if(!fs.existsSync(dirname)){
+            fs.mkdirSync(dirname);
+        }
+        fs.open(pathName, "wx", function (err, fd) {
+            // handle error
+            try{
+            fs.close(fd, function (err) {
+                // handle error
+            });}
+            catch(err){
+                
+            }
+        });
+        if(pathName.includes("person.json") || pathName.includes("address.json")){
+            fs.writeFileSync(pathName,JSON.stringify(JSON.parse("[]")));
+        }
+        if(pathName.includes("aid.json") || pathName.includes("pid.json")){
+            fs.writeFileSync(pathName,JSON.stringify(JSON.parse('{"counter":0}')));
+        }
+        
+        
+    }
+   
+}
+function createIfNotExist(){
+    createFileIfNotExist(persistence+person);
+    createFileIfNotExist(persistence+pid);
+    createFileIfNotExist(persistence+person_address);
+    createFileIfNotExist(persistence+address);
+    createFileIfNotExist(persistence+aid);
+
+}
 module.exports = {
     isEmpty,
     duplicatePerson,
@@ -175,5 +214,7 @@ module.exports = {
     isEuropeanCountry,
     hasNumber,
     propertiesEmtpy,
-    propertiesEmtpyForPerson
+    propertiesEmtpyForPerson,
+    createIfNotExist,
+    sanitizeString
 }

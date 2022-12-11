@@ -7,8 +7,10 @@
     "person": "./index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel node_modules/axios -d node_modules/axios"
   },
+  "cpu": ["x64"],
   "author": "Sudarshan Chavan",
   "license": "MIT",
   "dependencies": {

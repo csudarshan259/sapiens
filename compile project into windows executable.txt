@@ -1,0 +1,40 @@
+Compilation instructions for generating executable(exe) on Windows x64 architecture.
+
+1.Prerequisites:
+a. Install node.js LTS(18.12.1) version from https://nodejs.org/en/download/
+
+b. Install nexe tool.
+
+The fastest and most reliable way to install nexe is simply to run the commands below.
+
+The instructions below are the fastest and most reliable method. Run the following sets of commands with PowerShell (running as Administrator).
+
+Install all required build tools (and dependencies):
+
+Set-ExecutionPolicy Unrestricted -Force
+iex ((New-Object System.Net.WebClient).DownloadString('https://boxstarter.org/bootstrapper.ps1'))
+get-boxstarter -Force
+Install-BoxstarterPackage https://raw.githubusercontent.com/nodejs/node/master/tools/bootstrap/windows_boxstarter -DisableReboots
+Set config:
+
+npm config set msvs_version 2019
+npm config set python python3.8
+Where 2019 is the version of Visual Studio you have (if you have it). Otherwise set it to 2022 if you have it.
+
+Notes:
+
+The above works and has been tested with node.js 18.12.1
+Python 3 and Python 2 can coexist and nexe will still work, considering the set config area above
+Don't use npm install windows-build-tools unless you're having some type of issue, because the above commands configures and installs the latest/preferred tool.
+
+
+2. Using nexe for generating executable
+a. Run npm install in parent folder (where package.json resides)
+b. Run nexe index.js -t x64-14.15.3 -o "person" (this will create person.exe)
+
+3. Running the program
+a. Run "person.exe/person" or "person.exe/person --help" in command prompt for all the options. The program will self guide.
+
+
+Final Note: I tried all the possible tools including pkg, electron-packager and electron-builder. The generated executable response is very slow compared to nexe.
+For faster execution use README.md steps.
